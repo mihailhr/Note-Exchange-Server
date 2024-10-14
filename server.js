@@ -12,34 +12,70 @@ const pool=new Pool({
     }
 })
 
-app.get("/",(req,res)=>{
-    try {
-        res.status(200).send("Test endpoint is working")
-    } catch (error) {
-        res.status(400).send("Problem occurred")
-    }
-})
+// app.get("/",(req,res)=>{
+//     try {
+//         res.status(200).send("Test endpoint is working")
+//     } catch (error) {
+//         res.status(400).send("Problem occurred")
+//     }
+// })
 
-app.get("/createUsersTable",async(req,res)=>{
-    try {
-        const client =await pool.connect()
-        const result=await client.query(`
-            CREATE TABLE IF NOT EXISTS Users(
-            User_id SERIAL PRIMARY KEY,
-            Username VARCHAR(15))`)
-        res.send("Created Users table")
-        await client.release()
-    } catch (error) {
-        console.log(error)
-        res.send("Something went wrong: " + error)
-    }
-})
+// app.get("/createUsersTable",async(req,res)=>{
+//     try {
+//         const client =await pool.connect()
+//         const result=await client.query(`
+//             CREATE TABLE IF NOT EXISTS Users(
+//             User_id SERIAL PRIMARY KEY,
+//             Username VARCHAR(15))`)
+//         res.send("Created Users table")
+//         await client.release()
+//     } catch (error) {
+//         console.log(error)
+//         res.send("Something went wrong: " + error)
+//     }
+// })
 
-app.get("/insertFirstUsers",async (req,res)=>{
+// app.get("/insertFirstUsers",async (req,res)=>{
+//     try {
+//         const client=await pool.connect()
+//         const result=await client.query("INSERT INTO Users (Username) VALUES ('Mihail'), ('George')")
+//         res.send("Added first users")
+//         client.release()
+//     } catch (error) {
+//         console.log(error)
+//         res.send("Problem occurred: " + error)
+//     }
+// })
+
+// app.get("/resources",async(req,res)=>{
+//     try {
+//         const client=await pool.connect()
+//         const result=await client.query("CREATE TABLE IF NOT EXISTS Submissions (post_id SERIAL PRIMARY KEY, post_name VARCHAR(30))")
+//         res.send("Created submissions table")
+//         client.release()
+//     } catch (error) {
+//         console.log(error)
+//         res.send("Problem occurred: " + error)
+//     }
+// })
+// app.get("/addResources",async(req,res)=>{
+//     try {
+//         const client=await pool.connect()
+//         const result=await client.query("INSERT INTO Submissions (post_name) VALUES ('Economics basics'),('Mathematics')")
+//         res.send("Inserted into submissions table")
+//         client.release()
+//     } catch (error) {
+//         console.log(error)
+//         res.send("Problem occurred: " + error)
+//     }
+
+// })
+
+app.get("/latestSubmissions",async(req,res)=>{
     try {
         const client=await pool.connect()
-        const result=await client.query("INSERT INTO Users (Username) VALUES ('Mihail'), ('George')")
-        res.send("Added first users")
+        const response=await client.query("SELECT post_name FROM Submissions")
+        res.send(JSON.stringify(response.rows))
         client.release()
     } catch (error) {
         console.log(error)
