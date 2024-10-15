@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="postForm" action="/postResource" method="post">
+        <label for="title">Title of the study resource</label>
+        <input type="text" name="title" id="title" required minlength="4" maxlength="40">
+        <label for="url">Link to study material</label>
+        <input type="url" minlength="5" name="url" id="url" maxlength="60" required>
+        <label for="creator">Your name</label>
+        <input type="text" minlength="2" maxlength="15" id="creator" required name="creator">
+        <label for="field">Field </label>
+        <input type="text" name="field" id="field" required minlength="3" maxlength="20">
+        <input type="submit" value="Post study resource">
+
+    </form>
+</body>
+</html>

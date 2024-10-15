@@ -1,8 +1,18 @@
 const express=require("express")
+const cors=require("cors")
+const path=require("path")
+
+
+
 require("dotenv").config()
 const {Pool}=require("pg")
 const app=express()
+app.set('json spaces', 4)
+app.use(cors())
+app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.urlencoded({ extended: false }))
 const port=3000
+
 
 
 const pool=new Pool({
@@ -12,77 +22,63 @@ const pool=new Pool({
     }
 })
 
-// app.get("/",(req,res)=>{
-//     try {
-//         res.status(200).send("Test endpoint is working")
-//     } catch (error) {
-//         res.status(400).send("Problem occurred")
-//     }
-// })
+app.get("/",(req,res)=>{
+    res.sendFile(path.join(__dirname,'public','index.html'))
+})
 
-// app.get("/createUsersTable",async(req,res)=>{
-//     try {
-//         const client =await pool.connect()
-//         const result=await client.query(`
-//             CREATE TABLE IF NOT EXISTS Users(
-//             User_id SERIAL PRIMARY KEY,
-//             Username VARCHAR(15))`)
-//         res.send("Created Users table")
-//         await client.release()
-//     } catch (error) {
-//         console.log(error)
-//         res.send("Something went wrong: " + error)
-//     }
-// })
 
-// app.get("/insertFirstUsers",async (req,res)=>{
-//     try {
-//         const client=await pool.connect()
-//         const result=await client.query("INSERT INTO Users (Username) VALUES ('Mihail'), ('George')")
-//         res.send("Added first users")
-//         client.release()
-//     } catch (error) {
-//         console.log(error)
-//         res.send("Problem occurred: " + error)
-//     }
-// })
-
-// app.get("/resources",async(req,res)=>{
-//     try {
-//         const client=await pool.connect()
-//         const result=await client.query("CREATE TABLE IF NOT EXISTS Submissions (post_id SERIAL PRIMARY KEY, post_name VARCHAR(30))")
-//         res.send("Created submissions table")
-//         client.release()
-//     } catch (error) {
-//         console.log(error)
-//         res.send("Problem occurred: " + error)
-//     }
-// })
-// app.get("/addResources",async(req,res)=>{
-//     try {
-//         const client=await pool.connect()
-//         const result=await client.query("INSERT INTO Submissions (post_name) VALUES ('Economics basics'),('Mathematics')")
-//         res.send("Inserted into submissions table")
-//         client.release()
-//     } catch (error) {
-//         console.log(error)
-//         res.send("Problem occurred: " + error)
-//     }
-
-// })
-
-app.get("/latestSubmissions",async(req,res)=>{
+app.get("/studyResources",async(req,res)=>{
     try {
         const client=await pool.connect()
-        const response=await client.query("SELECT post_name FROM Submissions")
-        res.send(JSON.stringify(response.rows))
+        const response=await client.query("SELECT * FROM submissions;")
         client.release()
+        res.send(response.rows)
     } catch (error) {
-        console.log(error)
-        res.send("Problem occurred: " + error)
+        console.error(error)
+        res.status(400).send("An error occurred: "+error)
     }
 })
 
+app.get("/postResource",(req,res)=>{
+    res.sendFile(path.join(__dirname,'public','post.html'))
+})
+
+
+
+
+
+
+
+app.post("/postResource",async(req,res)=>{
+    const {title,field,url,creator}= (req.body)
+    console.log(title,field,url,creator)
+    try {
+        const client=await pool.connect()
+        const insertQuery=`INSERT INTO submissions
+        (post_name,field,creator,link)
+        VALUES($1,$2,$3,$4);
+        `
+        const response=await client.query(insertQuery,[title,field,creator,url])
+        client.release()
+        res.sendFile(path.join(__dirname,'public','successfulSubmission.html'))
+
+    } catch (error) {
+        console.error(error)
+        res.send("Problem")
+    }
+})
+// async function changeResourcesTable(){
+    
+//     try {
+//         const client=await pool.connect()
+//     const response=await client.query("ALTER TABLE submissions ADD link VARCHAR(200)")
+//     client.release()
+//     console.log('ok')
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+// changeResourcesTable()
 
 try {
     app.listen(port)
